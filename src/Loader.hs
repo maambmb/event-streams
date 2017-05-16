@@ -1,4 +1,4 @@
-module Reverser where 
+module Loader (readRows,readRowsReversed) where 
 
 import Data.ByteString ( ByteString, hGet )
 
@@ -16,6 +16,13 @@ readRow :: Word16 -> Handle -> Integer -> IO ByteString
 readRow rowLength hdl n = do
     _  <- hSeek hdl AbsoluteSeek $ n * (fromIntegral rowLength)
     hGet hdl $ fromIntegral rowLength
+
+readRows :: Word16 -> Handle -> IO [ ByteString ]
+readRows rowLength hdl = do
+        fileSize <- hFileSize hdl
+        let numRows  = countRows (fromIntegral rowLength) fileSize
+        let rowRange = enumFromTo 0 (numRows-1)
+        mapM ( readRow rowLength hdl ) rowRange
 
 readRowsReversed :: Word16 -> Handle -> IO [ ByteString ]
 readRowsReversed rowLength hdl = do
